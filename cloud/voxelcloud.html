@@ -1,0 +1,48 @@
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Voxel Cloud</title>
+    <style>
+      #babylon_canvas {
+        width   : 100%;
+        height  : 100%;
+        touch-action: none; 
+      }
+      body {
+        margin: 0px;
+        border: 0px;
+      }
+      #fpsLabel {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        cursor: default;
+        z-index:10;
+        background-color: #7283a0;
+        color:white;
+        padding:5px;
+        border-radius: 3px;
+        font-family: 'Montserrat';
+        pointer-events: none;
+        user-select: none;
+    }
+    </style>
+    <script src="./libs/dat.gui.js"></script>
+    <script src="./libs/babylon4.min.js"></script>
+    <script src="./voxelcloudshader_common.js"></script>
+    <script src="./voxelcloudshader_shape.js"></script>
+    <script src="./voxelcloudshader_detail.js"></script>
+    <script src="./voxelcloudshader_main.js"></script>
+    <script src="./voxelcloudmain.js"></script>
+  </head>
+  <body>
+    <span class="label" id="fpsLabel">fps</span>
+    <canvas id="babylon_canvas"></canvas>
+  </body>
+</html>
+
+<!-- http://www.cnblogs.com/yangrouchuan/p/8673130.html -->
+<!-- https://www.jianshu.com/p/19a03ef63176 -->
+<!-- https://github.com/techizgit/UnityPlayground -->
