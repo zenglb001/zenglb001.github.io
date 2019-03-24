@@ -45,7 +45,7 @@ window.onload = function() {
 
             // Add skybox
             let skyMaterial = shaderCloudySkybox.create(scene);
-            skyMaterial.setTexture("NoiseTextureSampler", new BABYLON.Texture("./img/UnCompressed_Cloud_PBR.bmp", scene));
+            skyMaterial.setTexture("NoiseTextureSampler", new BABYLON.Texture("./img/UnCompressed_Cloud_PBR.BMP", scene));
 
             let skybox = BABYLON.Mesh.CreateSphere("boxCloud", 100, 6000, scene);
             //let skybox = BABYLON.Mesh.CreateBox("skyBox", 10000.0, scene);
