@@ -47,54 +47,35 @@ window.onload = function() {
             // debugSphere = BABYLON.Mesh.CreateSphere("boxCloud", 8, 5, scene);
 
 
-            // -------- RT_NoiseShape
-            let NoiseShapeMaterial = voxelCloud_Shape.create(scene);
-            let RT_NoiseShape = new BABYLON.RenderTargetTexture("RT_NoiseShape", 1024, scene, true);
-            RT_NoiseShape.renderList.push(skybox);
-            scene.customRenderTargets.push(RT_NoiseShape);
-            RT_NoiseShape.onBeforeRender = function () {
-                for (var index = 0; index < RT_NoiseShape.renderList.length; index++) {
-                    RT_NoiseShape.renderList[index]._savedMaterial = RT_NoiseShape.renderList[index].material;
-                    RT_NoiseShape.renderList[index].material = NoiseShapeMaterial;
-                }
-            }
+            // // -------- RT_NoiseShape
+            // let NoiseShapeMaterial = voxelCloud_Shape.create(scene);
+            // let RT_NoiseShape = new BABYLON.RenderTargetTexture("RT_NoiseShape", 1024, scene, true);
+            // RT_NoiseShape.renderList.push(skybox);
+            // scene.customRenderTargets.push(RT_NoiseShape);
+            // RT_NoiseShape.onBeforeRender = function () {
+            //     for (var index = 0; index < RT_NoiseShape.renderList.length; index++) {
+            //         RT_NoiseShape.renderList[index]._savedMaterial = RT_NoiseShape.renderList[index].material;
+            //         RT_NoiseShape.renderList[index].material = NoiseShapeMaterial;
+            //     }
+            // }
 
-            //let Tex_NoiseShape;
-            RT_NoiseShape.onAfterRender = function () {
-                // Restoring previoux material
-                for (var index = 0; index < RT_NoiseShape.renderList.length; index++) {
-                    RT_NoiseShape.renderList[index].material = RT_NoiseShape.renderList[index]._savedMaterial;
-                }
-                //scene.customRenderTargets.pop();
-                //Tex_NoiseShape = RT_NoiseShape.getInternalTexture().clone("Tex_NoiseShape");
-                //??????????
-            }
+            // //let Tex_NoiseShape;
+            // RT_NoiseShape.onAfterRender = function () {
+            //     // Restoring previoux material
+            //     for (var index = 0; index < RT_NoiseShape.renderList.length; index++) {
+            //         RT_NoiseShape.renderList[index].material = RT_NoiseShape.renderList[index]._savedMaterial;
+            //     }
+            //     //scene.customRenderTargets.pop();
+            //     //Tex_NoiseShape = RT_NoiseShape.getInternalTexture().clone("Tex_NoiseShape");
+            //     //??????????
+            // }
 
-            // -------- RT_NoiseDetail
-            let NoiseDetailMaterial = voxelCloud_Detail.create(scene);
-            let RT_NoiseDetail = new BABYLON.RenderTargetTexture("RT_NoiseDetail", 1024, scene, true);
-            RT_NoiseDetail.renderList.push(skybox);
-            scene.customRenderTargets.push(RT_NoiseDetail);
-            RT_NoiseDetail.onBeforeRender = function () {
-                for (var index = 0; index < RT_NoiseDetail.renderList.length; index++) {
-                    RT_NoiseDetail.renderList[index]._savedMaterial = RT_NoiseDetail.renderList[index].material;
-                    RT_NoiseDetail.renderList[index].material = NoiseDetailMaterial;
-                }
-            }
-
-            RT_NoiseDetail.onAfterRender = function () {
-                // Restoring previoux material
-                for (var index = 0; index < RT_NoiseDetail.renderList.length; index++) {
-                    RT_NoiseDetail.renderList[index].material = RT_NoiseDetail.renderList[index]._savedMaterial;
-                }
-                //scene.customRenderTargets.pop();
-            }
-
-            // console.log(RT_NoiseDetail);
+            let PR_NoiseShape = Tex_VoxelCloudShape.create(scene);
+            let PR_NoiseDetail = Tex_VoxelCloudDetail.create(scene);
 
             // // Plane
             // var debugplanemat = new BABYLON.StandardMaterial("debugplanemat", scene);
-            // debugplanemat.emissiveTexture = RT_NoiseDetail;//.Clone();
+            // debugplanemat.emissiveTexture = PR_NoiseDetail;//.Clone();
             // debugplanemat.disableLighting = true;
 
             // let debugplane = BABYLON.Mesh.CreatePlane("debugplane", 15, scene);
@@ -109,8 +90,8 @@ window.onload = function() {
             //let skyMaterial = voxelCloud_Shape.create(scene);
             let skyMaterial = voxelCloud_Main.create(scene);
             //skyMaterial.setTexture("NoiseTextureSampler", new BABYLON.Texture("./img/UnCompressed_Cloud_PBR.bmp", scene));
-            skyMaterial.setTexture("NoiseDetailSampler", RT_NoiseDetail);
-            skyMaterial.setTexture("NoiseShapeSampler", RT_NoiseShape);
+            skyMaterial.setTexture("NoiseDetailSampler", PR_NoiseDetail);
+            skyMaterial.setTexture("NoiseShapeSampler", PR_NoiseShape);
             skybox.material = skyMaterial;
             scene.skybox = skybox;
 

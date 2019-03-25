@@ -1,5 +1,5 @@
 let voxelCloud_Main = {
-    VS : voxelCloudInc + `
+    VS : voxelCloudShaderInc + `
     // Attributes
     attribute vec3 position;
     attribute vec2 uv;
@@ -20,7 +20,7 @@ let voxelCloud_Main = {
     }
     `
     ,
-    FS : voxelCloudInc + `
+    FS : voxelCloudShaderInc + `
 
     uniform mat4 world;
 

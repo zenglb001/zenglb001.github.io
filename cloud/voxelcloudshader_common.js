@@ -1,4 +1,4 @@
-let voxelCloudBabylonCommon = `
+let voxelCloudBabylonShaderInc = `
 #ifdef GL_ES
 precision highp float;
 #endif
@@ -15,8 +15,22 @@ varying vec4 vPosition;
 varying vec3 vNormal;
 `
 
+let voxelCloudBabylonTexInc = `
+#ifdef GL_ES
+precision highp float;
+#endif
+
+#define PI 3.14159265359
+vec4 saturate( in vec4 a){return clamp(a, 0.0,1.0);}
+vec3 saturate( in vec3 a){return clamp(a, 0.0,1.0);}
+vec2 saturate( in vec2 a){return clamp(a, 0.0,1.0);}
+float saturate( in float a){return clamp(a, 0.0,1.0);}
+
+// Normal
+varying vec2 vUV;
+`
 //https://www.shadertoy.com/view/MdGfzh
-let voxelCloudInc = voxelCloudBabylonCommon + `
+let voxelCloudBabylonCommon = `
 #define SCENE_SCALE (10.)
 #define INV_SCENE_SCALE (.1)
 
@@ -231,3 +245,6 @@ float tilableFbm( vec3 p, const int octaves, float tile ) {
     return c / w;
 }
 `
+
+let voxelCloudShaderInc = voxelCloudBabylonShaderInc + voxelCloudBabylonCommon;
+let voxelCloudTexInc =  voxelCloudBabylonTexInc + voxelCloudBabylonCommon;
