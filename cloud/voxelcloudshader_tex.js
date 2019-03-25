@@ -66,7 +66,7 @@ let Tex_VoxelCloudDetail ={
     `,
     create : function(scene) {
         BABYLON.Effect.ShadersStore[this.Name + "PixelShader"] = this.PS;
-        let tex = new BABYLON.CustomProceduralTexture("custom" + this.Name, this.Name, 4024, scene);
+        let tex = new BABYLON.CustomProceduralTexture("custom" + this.Name, this.Name, 1024, scene);
         tex.animate = false;
         tex.refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
         return tex;
