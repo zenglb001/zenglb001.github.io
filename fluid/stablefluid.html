@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="lightgl.js"></script>
+  <script src="sf.js"></script>
+  <style>
+      canvas{
+        display: block;
+        margin: 0 auto;
+      }
+  </style>
+</head>
+<body>
+  <script>
+    var ccSize = 0;
+
+    var angle = 0;
+    var gl = GL.create();
+    var plane = GL.Mesh.plane({ coords: true });
+    var ratio = window.devicePixelRatio || 1;
+    var fluid = new SFluid();
+    var inited = false;
+    var textureLoaded = false;
+    var inputX = 0;
+    var inputY = 0;
+    var inputX_pre = 0;
+    var inputY_pre = 0;
+    var inputOnDrag = false;
+    var mouseMoved = false;
+    var mouseDown = false;
+    var viscosity = 0.000001;
+    var force = 300;
+    var exponent = 200;
+
+    var b_Init = false;
+    var dx = 1.0 / RTSize;
+    this.dx = dx;
+    this.difAlpha_prec = dx * dx / viscosity;
+
+    var debug_Velocity = false;
+    var debug_enableProj = true;
+    var debug_enableDiffuse = true;
+    
+    var planeShader = new GL.Shader('\
+      varying vec2 vUV;\
+      void main() {\
+        vUV = gl_TexCoord.xy;\
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\
+      }\
+    ', '\
+      uniform sampler2D texture;\
+      varying vec2 vUV;\
+      void main() {\
+        gl_FragColor = texture2D(texture, vUV);\
+      }\
+    ');
+
+    //var textureImg = GL.Texture.fromURL('image.jpg');
+    var textureImg;
+    var image = new Image();
+    image.src = 'image.jpg';
+    image.onload = function() {
+      b_Init = true;
+      textureImg = GL.Texture.fromImage(image);
+
+      fluid.updateCopy(textureImg, fluid.colRT1);
+    };
+
+    function RandomVecIdentity()
+    {
+      var t = Math.random() * Math.PI * 2;
+      var x = Math.sin(t);
+      var y = Math.cos(t);
+      return [x, y];
+    };
+    
+    gl.onupdate = function(deltaTime)
+    {
+      if(!b_Init)
+        return;
+
+      //Do simulation
+      fluid.updateAdvection(fluid.texV1, fluid.texV2, deltaTime);
+
+      //jacobi iteration 2D
+      //Diffuse setup
+      var dif_alpha = difAlpha_prec / deltaTime; //0.1
+      var alpha = dif_alpha;
+      var beta = alpha + 4;
+      if (debug_enableDiffuse) {
+        fluid.updateCopy(fluid.texV2, fluid.texV1);
+        for (var i_1 = 0; i_1 < 20; i_1++) {
+          fluid.updateJacobi2d(fluid.texV2, fluid.texV1, fluid.texV3, alpha, beta);
+          fluid.updateJacobi2d(fluid.texV3, fluid.texV1, fluid.texV2, alpha, beta);
+        }
+      }
+
+      //add external force V2->V3
+      var forceX = 0;
+      var forceY = 0;
+      var forceVar = force;
+      if (inputOnDrag) {
+          forceX = forceVar * (inputX - inputX_pre);
+          forceY = forceVar * (inputY - inputY_pre);
+      }
+      else if (mouseDown) {
+          forceVar *= 0.1;
+          var rvec = RandomVecIdentity();
+          forceX = forceVar * rvec[0];
+          forceY = forceVar * rvec[1];
+          mouseDown = false;
+      }
+
+      var forceVec = new GL.Vector(forceX / 2.0, forceY / 2.0, 0.0);
+      var inputVec = new GL.Vector(inputX, inputY, 0.0);
+      fluid.updateForce(fluid.texV2, fluid.texV3, exponent, forceVec, inputVec);
+      fluid.updateCopy(fluid.texV3, fluid.texV1);
+
+      //Proj setup V3->V1
+      if (debug_enableProj) {
+        //V2(divergence of Velocity)
+        fluid.updateProjSetup(fluid.texV3, fluid.texV2);
+
+        //set P1 to 0
+        fluid.updateClear(fluid.texP1);
+        //Jacobi 1D
+        var dxVar = dx;
+        var alpha1d = -dxVar * dxVar;
+        var beta1d = 4;
+        for (var i = 0; i < 20; i++) {
+          fluid.updateJacobi1d(fluid.texP1, fluid.texV2, fluid.texP2, alpha1d, beta1d);
+          fluid.updateJacobi1d(fluid.texP2, fluid.texV2, fluid.texP1, alpha1d, beta1d);
+        }
+        //ProjFinish
+        fluid.updateProjFinish(fluid.texP1, fluid.texV3, fluid.texV1);
+      }
+
+      //Use velocity to carry color
+      if (debug_Velocity) {
+          fluid.RTTex = fluid.texV1; 
+          return;
+      }
+      else {
+          fluid.updateFluid(fluid.colRT1, fluid.texV1, fluid.colRT2, deltaTime);
+          fluid.colRT1.swapWith(fluid.colRT2); //swrap colorbuffer
+      }
+    };
+    
+    gl.ondraw = function() {
+
+      var orthoOffset = 1.0;
+      gl.matrixMode(gl.PROJECTION);
+      gl.loadIdentity();
+      gl.ortho(-orthoOffset, orthoOffset, -orthoOffset, orthoOffset, -1.0, 1.0);
+
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      fluid.colRT1.bind(0);
+      planeShader.uniforms({
+        texture: 0,
+      }).draw(plane);
+      fluid.colRT1.unbind(0);
+    };
+    
+    //gl.fullscreen();
+    gl.animate();
+    //gl.enable(gl.DEPTH_TEST);
+
+    document.body.appendChild(gl.canvas);
+    function resize() {
+      ccSize = (window.innerWidth > window.innerHeight ? window.innerHeight : window.innerWidth) - 20.0;
+      gl.canvas.width = ccSize;
+      gl.canvas.height = ccSize;
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    }
+    resize();
+
+    function EvtOnMouseUp(e) {
+      inputOnDrag = false;
+      mouseDown = false;
+    };
+    function EvtOnMouseLeave(e) {
+        inputOnDrag = false;
+        mouseDown = false;
+    };
+    function EvtOnMouseDown(e) {
+        mouseDown = true;
+        inputOnDrag = true;
+    };
+    function EvtOnMouseMove(e) {
+        inputX_pre = inputX;
+        inputY_pre = inputY;
+        inputX = e.offsetX / ccSize;
+        inputY = 1.0 - e.offsetY / ccSize;
+    };
+
+    //addEventListener
+    window.addEventListener('resize', resize);
+    gl.canvas.addEventListener('mousemove', EvtOnMouseMove, false);
+    gl.canvas.addEventListener('mousedown', EvtOnMouseDown, false);
+    gl.canvas.addEventListener('mouseup', EvtOnMouseUp, false);
+    gl.canvas.addEventListener('mouseleave', EvtOnMouseLeave, false);
+  </script>
+</body></html>
