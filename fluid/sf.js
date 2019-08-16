@@ -198,11 +198,20 @@ function SFluid() {
     this.quad = GL.Mesh.plane();
 
     //RTShader
-    this.texV1  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //RG32F
-    this.texV2  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //RG32F
-    this.texV3  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //RG32F
-    this.texP1  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //R32F
-    this.texP2  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //R32F
+    this.texV1  = new GL.Texture(RTSize, RTSize, { type: gl.FLOAT }); //RG32F
+    this.texV2  = new GL.Texture(RTSize, RTSize, { type: gl.FLOAT }); //RG32F
+    this.texV3  = new GL.Texture(RTSize, RTSize, { type: gl.FLOAT }); //RG32F
+    this.texP1  = new GL.Texture(RTSize, RTSize, { type: gl.FLOAT }); //R32F
+    this.texP2  = new GL.Texture(RTSize, RTSize, { type: gl.FLOAT }); //R32F
+    if ((!this.texV1.canDrawTo()) && GL.Texture.canUseHalfFloatingPointTextures()) {
+      this.texV1  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //RG32F
+      this.texV2  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //RG32F
+      this.texV3  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //RG32F
+      this.texP1  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //R32F
+      this.texP2  = new GL.Texture(RTSize, RTSize, { type: gl.HALF_FLOAT_OES }); //R32F
+    }
+  
+  
     this.colRT1 = new GL.Texture(RTSize, RTSize); //RGBA8
     this.colRT2 = new GL.Texture(RTSize, RTSize); //RGBA8
 
