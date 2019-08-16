@@ -1,32 +1,33 @@
-var RTSize = 512;
-let ShaderCommon = `
-ivec2 texsize = ivec2(512,512);
-`;
 
-let VS_Shader = ShaderCommon + `
+var RTSize = 512;
+let ShaderCommon = (function(){/**
+ivec2 texsize = ivec2(512,512);
+**/}).toString().slice(15,-5);
+
+let VS_Shader = ShaderCommon + (function(){/**
   varying vec2 vUV;
   void main() {
     vUV = gl_Vertex.xy * 0.5 + 0.5;
     gl_Position = vec4(gl_Vertex.xyz, 1.0);
   }
-`;
+**/}).toString().slice(15,-5);
 
-let PS_Copy = ShaderCommon + `
+let PS_Copy = ShaderCommon + (function(){/**
   uniform sampler2D uSampler;
   varying vec2 vUV;
   void main() {
     gl_FragColor = texture2D(uSampler,vUV);
   }
-`;
+**/}).toString().slice(15,-5);
 
-let PS_Clear = ShaderCommon + `
+let PS_Clear = ShaderCommon + (function(){/**
   void main() {
     gl_FragColor = vec4(0.0,0.0,0.0,0.0);
   }
-`;
+**/}).toString().slice(15,-5);
 
 //ps_advect
-let PS_Advect = ShaderCommon + `
+let PS_Advect = ShaderCommon + (function(){/**
 precision highp float;
 varying vec2 vUV;
 
@@ -38,32 +39,10 @@ void main(){
     vec2 duv = col.xy * vec2(texsize.y/texsize.x,1.0) * uDeltaTime; 
     gl_FragColor = vec4(texture2D(uSampler,vUV - duv).xy,0.0,1.0);
 }
-`;
-
-//ps_color
-let PS_Color = ShaderCommon + `
-precision highp float;
-varying vec2 vUV;
-uniform vec4 uColor;
-
-void main(){
-    gl_FragColor = uColor;
-}
-`;
-
-//ps_default
-let PS_Default= ShaderCommon + `
-precision highp float;
-varying vec2 vUV;
-uniform sampler2D uSampler;
-
-void main(){
-    gl_FragColor = texture2D(uSampler,vUV);
-}
-`;
+**/}).toString().slice(15,-5);
 
 //ps_fluid
-let PS_Fluid= ShaderCommon + `
+let PS_Fluid= ShaderCommon + (function(){/**
 precision mediump float;
 varying vec2 vUV;
 uniform sampler2D uSampler; //Color Texture RGB
@@ -87,10 +66,10 @@ void main(){
 
     gl_FragColor = vec4(color,1.0);
 }
-`;
+**/}).toString().slice(15,-5);
 
 //ps_force
-let PS_Force = ShaderCommon + `
+let PS_Force = ShaderCommon + (function(){/**
 precision highp float;
 varying vec2 vUV;
 
@@ -111,10 +90,10 @@ void main(){
     float amp = exp(-uForceExponent * distance(uForceOrigin.xy,pos));
     gl_FragColor = vec4(col.xy + uForceVector.xy * amp,0.0,1.0);
 }
-`;
+**/}).toString().slice(15,-5);
 
 //ps_jacobi1d
-let PS_Jacobi1d = ShaderCommon + `
+let PS_Jacobi1d = ShaderCommon + (function(){/**
 precision highp float;
 varying vec2 vUV;
 uniform sampler2D uSampler; //1D X1
@@ -137,10 +116,10 @@ void main(){
 
     gl_FragColor = vec4((x1 + x2 +y1+y2 + uAlpha *b1) / uBeta, 0.0, 0.0, 1.0);
 }
-`;
+**/}).toString().slice(15,-5);
 
 //ps_jacobi2d
-let PS_Jacobi2d = ShaderCommon + `
+let PS_Jacobi2d = ShaderCommon + (function(){/**
 precision mediump float;
 varying vec2 vUV;
 
@@ -164,10 +143,10 @@ void main(){
 
     gl_FragColor = vec4((x1 + x2 +y1+y2 + uAlpha *b1) / uBeta,0.0,1.0);
 }
-`;
+**/}).toString().slice(15,-5);
 
 //ps_projfinish
-let PS_ProjFinish = ShaderCommon + `
+let PS_ProjFinish = ShaderCommon + (function(){/**
 precision mediump float;
 varying vec2 vUV;
 
@@ -188,10 +167,10 @@ void main(){
 
     gl_FragColor = vec4(u,0.0,1.0);
 }
-`;
+**/}).toString().slice(15,-5);
 
 //ps_projsetup
-let PS_ProjSetup = ShaderCommon + `
+let PS_ProjSetup = ShaderCommon + (function(){/**
 precision highp float;
 varying vec2 vUV;
 
@@ -213,38 +192,7 @@ void main(){
     float v =  (x1 - x2 + y1 - y2) / (2.0 * uoff);
     gl_FragColor = vec4(vec2(v,v),0.0,1.0);
 }
-`;
-
-//vs_default
-let VS_Default = ShaderCommon + `
-precision mediump float;
-layout(location = 0) in vec2 aPosition;
-layout(location = 1) in vec2 aUV;
-
-varying vec2 vUV;
-
-void main(){
-    gl_Position = vec4(aPosition *2.0-1.0,0,1);
-
-    vUV = aUV;
-}
-`;
-
-//vs_default_flip
-let VS_Default_Flip = ShaderCommon + `
-precision mediump float;
-layout(location = 0) in vec2 aPosition;
-layout(location = 1) in vec2 aUV;
-
-varying vec2 vUV;
-
-void main(){
-    gl_Position = vec4(aPosition *2.0-1.0,0,1);
-
-    vUV = aUV;
-    vUV.y = 1.0 - vUV.y;
-}
-`;
+**/}).toString().slice(15,-5);
 
 function SFluid() {
     this.quad = GL.Mesh.plane();
