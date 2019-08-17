@@ -2,6 +2,7 @@ var RTSize = 512;
 let ShaderCommon = (function(){/**
 ivec2 texsize = ivec2(512,512);
 //ivec2 texsize = textureSize(uSampler,0);
+
 **/}).toString().slice(15,-5);
 
 let VS_Shader = ShaderCommon + (function(){/**
