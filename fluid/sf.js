@@ -1,8 +1,7 @@
 var RTSize = 512;
 let ShaderCommon = (function(){/**
-ivec2 texsize = ivec2(512,512);
 //ivec2 texsize = textureSize(uSampler,0);
-
+ivec2 texsize = ivec2(512,512);
 **/}).toString().slice(15,-5);
 
 let VS_Shader = ShaderCommon + (function(){/**
@@ -15,9 +14,9 @@ let VS_Shader = ShaderCommon + (function(){/**
 
 let PS_Copy = ShaderCommon + (function(){/**
   uniform sampler2D uSampler;
-  //varying vec2 vUV;
+  varying vec2 vUV;
   void main() {
-    gl_FragColor = vec4(1.0,0.0,0.0,1.0); //texture2D(uSampler,vUV);
+    gl_FragColor = texture2D(uSampler,vUV);
   }
 **/}).toString().slice(15,-5);
 
